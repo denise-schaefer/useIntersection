@@ -2,3 +2,7 @@
 /node_modules/
 /coverage/
 /lib/
+.DS_Store
+*.d.ts
+jest.config.js
+tsconfig.tsbuildinfo
