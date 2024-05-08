@@ -67,7 +67,7 @@ describe('useIntersection', () => {
 
 	it('should disconnect observer on unmount', () => {
 		const { disconnect } = setUp();
-		const ref = { current: {} };
+		const ref = { current: document.createElement('div') };
 		const { unmount } = renderHook(() => useIntersection({ ref }));
 
 		unmount();

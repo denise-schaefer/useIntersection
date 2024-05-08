@@ -6,11 +6,11 @@ type UseIntersectionProperties<T> = {
 	triggerOnce?: boolean;
 };
 
-export const useIntersection = <T>({
-	ref,
-	options,
-	triggerOnce = false
-}: UseIntersectionProperties<T>): {
+export const useIntersection = <T extends HTMLElement>({
+														   ref,
+														   options,
+														   triggerOnce = false
+													   }: UseIntersectionProperties<T>): {
 	intersecting: boolean;
 } => {
 	const [intersecting, setIntersecting] = useState(false);
@@ -19,7 +19,7 @@ export const useIntersection = <T>({
 	}
 
 	useEffect(() => {
-		const element = ref.current as Element;
+		const element = ref?.current;
 
 		const observerCallback = (
 			[entry]: IntersectionObserverEntry[],
