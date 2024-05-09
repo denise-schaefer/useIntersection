@@ -1,4 +1,3 @@
-import { expect } from '@jest/globals';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useIntersection } from '../useIntersection';
 
