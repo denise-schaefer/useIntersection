@@ -1,3 +1,4 @@
+import { expect } from '@jest/globals';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useIntersection } from '../useIntersection';
 
@@ -73,5 +74,13 @@ describe('useIntersection', () => {
 		unmount();
 
 		expect(disconnect).toHaveBeenCalled();
+	});
+
+	it('allow intersecting if no IntersectionObserver is available', () => {
+		window.IntersectionObserver = undefined as never
+		const ref = { current: document.createElement('div') };
+		const { result } = renderHook(() => useIntersection({ ref }));
+
+		expect(result.current).toBeTruthy()
 	});
 });

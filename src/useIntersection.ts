@@ -25,6 +25,8 @@ export const useIntersection = <T extends HTMLElement>({
 	const [intersecting, setIntersecting] = useState(false);
 	if (IntersectionObserver === undefined) {
 		!intersecting && setIntersecting(true);
+
+		return { intersecting }
 	}
 
 	/**
