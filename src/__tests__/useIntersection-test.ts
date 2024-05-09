@@ -29,35 +29,43 @@ describe('useIntersection', () => {
 
 	it('should observe element on mount', () => {
 		const { observe } = setUp();
-		const ref = { current: document.createElement('div') };
-		renderHook(() => useIntersection({ ref }));
+		const element =  document.createElement('div')
+		const { result } = renderHook(() => useIntersection({}));
 
-		expect(observe).toHaveBeenCalledWith(ref.current);
+		act(() => {
+			result.current.elementRef(element)
+		})
+
+		expect(observe).toHaveBeenCalledWith(element);
 	});
 
 	it('should unobserve element when intersecting and triggerOnce is true', () => {
 		const { unobserve } = setUp();
-		const ref = { current: document.createElement('div') };
-		renderHook(() => useIntersection({ ref, triggerOnce: true }));
+		const element =  document.createElement('div')
+		const { result } = renderHook(() => useIntersection({ triggerOnce: true }));
 
 		act(() => {
+			result.current.elementRef(element)
+
 			observerMock.mock.calls[0][0](
-				[{ isIntersecting: true, target: ref.current }],
+				[{ isIntersecting: true, target: element }],
 				observerMock.mock.instances[0]
 			);
 		});
 
-		expect(unobserve).toHaveBeenCalledWith(ref.current);
+		expect(unobserve).toHaveBeenCalledWith(element);
 	});
 
 	it('should not unobserve element when intersecting and triggerOnce is false', () => {
 		const { unobserve } = setUp();
-		const ref = { current: document.createElement('div') };
-		renderHook(() => useIntersection({ ref }));
+		const element =  document.createElement('div')
+		const { result } = renderHook(() => useIntersection({}));
 
 		act(() => {
+			result.current.elementRef(element)
+
 			observerMock.mock.calls[0][0](
-				[{ isIntersecting: true, target: ref.current }],
+				[{ isIntersecting: true, target: element }],
 				observerMock.mock.instances[0]
 			);
 		});
@@ -65,12 +73,13 @@ describe('useIntersection', () => {
 		expect(unobserve).not.toHaveBeenCalled();
 	});
 
-	it('should disconnect observer on unmount', () => {
+	it('disconnects the observer on destroying reference to the element', () => {
 		const { disconnect } = setUp();
-		const ref = { current: document.createElement('div') };
-		const { unmount } = renderHook(() => useIntersection({ ref }));
+		const { result } = renderHook(() => useIntersection({}));
 
-		unmount();
+		act(() => {
+			result.current.elementRef(null)
+		})
 
 		expect(disconnect).toHaveBeenCalled();
 	});
