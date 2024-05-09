@@ -14,6 +14,37 @@ type UseIntersectionResult<T> = {
 	elementRef: (node: T | null) => void;
 }
 
+type CreateIntersectionObserverProps<T> = UseIntersectionProperties<T> & {
+	intersectingStateChanger: (intersecting: boolean) => void,
+};
+
+const createIntersectionObserver = <T extends HTMLElement>({ triggerOnce, options, intersectingStateChanger }: CreateIntersectionObserverProps<T>) => {
+	if (IntersectionObserver === undefined) {
+		intersectingStateChanger(true);
+	}
+
+	const observerCallback = (
+		[entry]: IntersectionObserverEntry[],
+		observer: IntersectionObserver
+	) => {
+		intersectingStateChanger(entry?.isIntersecting || false);
+		if (entry?.isIntersecting && triggerOnce) {
+			observer.unobserve(entry.target);
+		}
+	};
+
+	let io: IntersectionObserver | null = new IntersectionObserver(observerCallback, options);
+
+	return (element: T | null) => {
+		if (element) {
+			io?.observe(element)
+		} else {
+			io?.disconnect();
+			io = null;
+		}
+	}
+}
+
 /**
  * A custom hook that uses the IntersectionObserver API to observe a DOM element.
  * @function useIntersection
@@ -29,43 +60,11 @@ export const useIntersection = <T extends HTMLElement>({
 	/**
 	 * The callback hook that sets up the IntersectionObserver.
 	 */
-	const elementRef = useCallback((element: T | null) => {
-		if (IntersectionObserver === undefined) {
-			!intersecting && setIntersecting(true);
-		}
-
-		/**
-		 * The callback for the IntersectionObserver.
-		 * @param {IntersectionObserverEntry[]} [entry] - The entries for the IntersectionObserver.
-		 * @param {IntersectionObserver} observer - The IntersectionObserver instance.
-		 */
-		const observerCallback = (
-			[entry]: IntersectionObserverEntry[],
-			observer: IntersectionObserver
-		) => {
-			setIntersecting(entry?.isIntersecting || false);
-			if (entry?.isIntersecting && triggerOnce) {
-				observer.unobserve(entry.target);
-			}
-		};
-
-		let io: IntersectionObserver | null = new IntersectionObserver(observerCallback, options);
-		/**
-		 * The cleanup function for the effect hook.
-		 * Disconnects the IntersectionObserver.
-		 */
-		const cleanUp = () => {
-			io?.disconnect();
-			io = null;
-		}
-
-		if(!element) {
-			cleanUp()
-			return;
-		}
-
-		io.observe(element);
-	}, [options, triggerOnce])
+	const elementRef = useCallback((element: T | null) => createIntersectionObserver<T>({
+		triggerOnce,
+		options,
+		intersectingStateChanger: setIntersecting
+	})(element), [options, triggerOnce])
 
 	return { intersecting, elementRef };
 };
