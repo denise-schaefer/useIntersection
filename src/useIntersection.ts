@@ -16,10 +16,10 @@ type UseIntersectionProperties<T> = {
  * @returns {Object} An object with a single property, intersecting, which is true if the element is intersecting.
  */
 export const useIntersection = <T extends HTMLElement>({
-														   ref,
-														   options,
-														   triggerOnce = false
-													   }: UseIntersectionProperties<T>): {
+	ref,
+	options,
+	triggerOnce = false
+}: UseIntersectionProperties<T>): {
 	intersecting: boolean;
 } => {
 	const [intersecting, setIntersecting] = useState(false);
@@ -31,7 +31,7 @@ export const useIntersection = <T extends HTMLElement>({
 	 * The effect hook that sets up the IntersectionObserver.
 	 */
 	useEffect(() => {
-		const element = ref?.current;
+		const element = ref.current;
 
 		/**
 		 * The callback for the IntersectionObserver.
@@ -48,7 +48,7 @@ export const useIntersection = <T extends HTMLElement>({
 			}
 		};
 
-		let io: IntersectionObserver | null = new IntersectionObserver(observerCallback, options);
+		const io: IntersectionObserver = new IntersectionObserver(observerCallback, options);
 
 		if (element) {
 			io.observe(element);
@@ -60,7 +60,6 @@ export const useIntersection = <T extends HTMLElement>({
 		 */
 		return () => {
 			io?.disconnect();
-			io = null;
 		};
 	}, [ref, options, triggerOnce]);
 
